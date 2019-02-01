@@ -1,0 +1,50 @@
+import { Router } from '@angular/router';
+import { AuthService } from './../services/auth.service';
+import { Component, OnInit } from '@angular/core';
+import swal from 'sweetalert';
+
+@Component({
+    selector: 'app-register',
+    templateUrl: './register.component.html',
+    styleUrls: ['./register.component.scss']
+})
+export class RegisterComponent implements OnInit {
+
+  name: String = '';
+  apellido: String = '';
+  email: String = '';
+  busy: Promise<any>;
+  esperando: Boolean;
+
+  constructor(private router: Router, private authDataServise: AuthService) {}
+
+  ngOnInit() {
+    this.name = '';
+    this.apellido = '';
+    this.email = '';
+    this.esperando = false;
+  }
+
+  registrar() {
+    if ( !this.esperando ) {
+      this.esperando = true;
+      this.busy = this.authDataServise.register(this.name, this.apellido, this.email).then( r => {
+        this.esperando = false;
+        swal({
+          title: 'Te damos la bienvenida',
+          text: 'Enviamos tu contraseña a tu correo',
+          icon: 'success',
+        })
+        .then( response => {
+          this.name = '';
+          this.apellido = '';
+          this.email = '';
+          this.router.navigate(['/login']);
+        });
+      }).catch( e => {
+        this.esperando = false;
+        console.log(e);
+      });
+    }
+  }
+}
